@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import 'firebase_options.dart'; // ← importe ton fichier FirebaseOptions
-import 'package:firebase_core/firebase_core.dart'; // ← nécessaire pour Firebase.initializeApp
+import 'firebase_options.dart'; 
+import 'package:firebase_core/firebase_core.dart'; 
+import 'package:rdv_app/page/presentation_page.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // ← obligatoire avant toute initialisation asynchrone
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform, // ← ton code Firebase ici
   );
-  
+
   runApp(const MyApp());
 }
 
@@ -18,10 +19,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const PresentationPage(), 
     );
   }
 }
