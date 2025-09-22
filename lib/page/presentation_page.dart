@@ -39,7 +39,7 @@ class _PresentationPageState extends State<PresentationPage> {
                   'Sécurité & confidentialité',
                   'Vos informations et vos rendez-vous sont protégés et accessibles uniquement par vous.',
                   Icons.verified_user,
-),
+                ),
             ],
           ),
           Column(
