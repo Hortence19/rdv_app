@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:rdv_app/controllers/userCtlr.dart';
+import 'package:rdv_app/controllers/user_ctlr.dart';
 import 'package:rdv_app/models/my_user.dart';
 import 'package:rdv_app/page/connexion_page.dart';
 import 'package:rdv_app/utils/utils.dart';
