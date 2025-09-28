@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:rdv_app/page/connexion_page.dart';
-import 'package:rdv_app/page/inscription_page.dart';
+import 'connexion_page.dart';
+import 'inscription_page.dart';
 
 class PresentationPage extends StatefulWidget {
   const PresentationPage({super.key});
@@ -13,7 +13,6 @@ class PresentationPage extends StatefulWidget {
 class _PresentationPageState extends State<PresentationPage> {
   final PageController _controller = PageController();
 
-  // Liste des éléments du onboarding
   final List<Map<String, dynamic>> presentationItems = [
     {
       "icon": Icons.event_available,
@@ -37,49 +36,56 @@ class _PresentationPageState extends State<PresentationPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       body: Stack(
         alignment: Alignment.bottomCenter,
         children: [
-          // Slides
           PageView.builder(
             controller: _controller,
             itemCount: presentationItems.length,
             itemBuilder: (context, index) {
               return Center(
-                // <-- pour centrer la colonne
-                child: Column(
-                  mainAxisSize:
-                      MainAxisSize.min, // évite de prendre tout l’espace
-                  children: [
-                    Icon(
-                      presentationItems[index]["icon"],
-                      size: 140,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                    const SizedBox(height: 30),
-                    Text(
-                      presentationItems[index]["title"],
-                      style: Theme.of(context).textTheme.headlineMedium,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 20),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                      child: Text(
-                        presentationItems[index]["subtitle"],
-                        textAlign: TextAlign.center,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        presentationItems[index]["icon"],
+                        size: screenHeight * 0.2,
+                        color: Theme.of(context).primaryColor,
                       ),
-                    ),
-                  ],
+                      SizedBox(height: screenHeight * 0.03),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.08),
+                        child: Text(
+                          presentationItems[index]["title"],
+                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                fontSize: screenHeight * 0.03,
+                              ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      SizedBox(height: screenHeight * 0.02),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.08),
+                        child: Text(
+                          presentationItems[index]["subtitle"],
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: screenHeight * 0.02),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
           ),
-
-          // Indicateur + Boutons
           Padding(
-            padding: const EdgeInsets.only(bottom: 40, left: 32, right: 32),
+            padding: EdgeInsets.only(
+                bottom: screenHeight * 0.05, left: screenWidth * 0.08, right: screenWidth * 0.08),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -87,12 +93,12 @@ class _PresentationPageState extends State<PresentationPage> {
                   controller: _controller,
                   count: presentationItems.length,
                   effect: WormEffect(
-                    dotHeight: 4,
-                    dotWidth: 20,
+                    dotHeight: screenHeight * 0.005,
+                    dotWidth: screenWidth * 0.05,
                     activeDotColor: Theme.of(context).primaryColor,
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: screenHeight * 0.02),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -105,13 +111,13 @@ class _PresentationPageState extends State<PresentationPage> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 18),
-                      textStyle: const TextStyle(fontSize: 18),
+                      padding: EdgeInsets.symmetric(vertical: screenHeight * 0.025),
+                      textStyle: TextStyle(fontSize: screenHeight * 0.022),
                     ),
                     child: const Text('Se connecter'),
                   ),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: screenHeight * 0.015),
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
@@ -124,8 +130,8 @@ class _PresentationPageState extends State<PresentationPage> {
                       );
                     },
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 18),
-                      textStyle: const TextStyle(fontSize: 18),
+                      padding: EdgeInsets.symmetric(vertical: screenHeight * 0.025),
+                      textStyle: TextStyle(fontSize: screenHeight * 0.022),
                     ),
                     child: const Text("S'inscrire"),
                   ),
@@ -138,3 +144,4 @@ class _PresentationPageState extends State<PresentationPage> {
     );
   }
 }
+

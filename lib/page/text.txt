@@ -1,0 +1,109 @@
+Parfait ! Je vois exactement comment tes pages `InscriptionPage` et `ConnexionPage` fonctionnent. Pour rendre le tout plus **pro**, **fluide** et **dynamique**, voici ce que je te propose :
+
+---
+
+### 🔹 Améliorations générales
+
+1. **Navigation cohérente avec GetX** :
+
+   * Après inscription ou connexion réussie → `Get.offAll(() => HomePage())`
+   * Plus besoin de `Navigator.pop()` ni de `Navigator.push()` classiques.
+
+2. **Gestion dynamique de l’utilisateur connecté** :
+
+   * Stocker `userId` dans un `RxString` ou via `GetStorage` pour pouvoir l’utiliser dans `HomePage`, `AddRdvPage` et `ListRdvPage`.
+
+3. **Formulaire plus pro** :
+
+   * Boutons et champs avec `Material3` style, couleurs cohérentes.
+   * Feedback via `SnackBar` ou `Get.snackbar` avec couleur selon succès/erreur.
+
+4. **Authentification Firebase recommandée** :
+
+   * Actuellement, tu compares juste `hashPswd(password)` → idéalement tu peux utiliser `FirebaseAuth` pour plus de sécurité.
+
+---
+
+### 🔹 Version améliorée de `InscriptionPage`
+
+```dart
+ElevatedButton(
+  style: ElevatedButton.styleFrom(
+    backgroundColor: Colors.deepPurple,
+    minimumSize: const Size(double.infinity, 60),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(15),
+    ),
+  ),
+  onPressed: () {
+    if (formKey.currentState!.validate()) {
+      saveUserToFirebase();
+    } else {
+      Get.snackbar(
+        'Erreur',
+        "Formulaire invalide",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  },
+  child: const Text(
+    "S’inscrire",
+    style: TextStyle(color: Colors.white, fontSize: 18),
+  ),
+),
+```
+
+* Même logique pour `ConnexionPage` : valider formulaire, puis `signIn()` → `Get.offAll(() => HomePage())` si succès.
+
+---
+
+### 🔹 Dynamisme supplémentaire
+
+1. **Afficher le nom de l’utilisateur connecté sur HomePage** :
+
+```dart
+Text("Bonjour, ${userController.currentUser.fname} !")
+```
+
+2. **HomePage avec BottomNavigationBar**
+
+   * Index 0 : Accueil/Calendrier
+   * Index 1 : Ajouter un RDV
+   * Index 2 : Liste des RDV
+   * Changement d’onglet = mise à jour dynamique du corps (`body`) au lieu de `Navigator.pushNamed`.
+
+```dart
+int _selectedIndex = 0;
+
+Widget build(BuildContext context) {
+  final pages = [CalendarPage(), AddRdvPage(), ListRdvPage()];
+  
+  return Scaffold(
+    body: pages[_selectedIndex],
+    bottomNavigationBar: BottomNavigationBar(
+      currentIndex: _selectedIndex,
+      onTap: (index) => setState(() => _selectedIndex = index),
+      items: const [
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: "Accueil"),
+        BottomNavigationBarItem(icon: Icon(Icons.add), label: "Ajouter"),
+        BottomNavigationBarItem(icon: Icon(Icons.list), label: "Rendez-vous"),
+      ],
+    ),
+  );
+}
+```
+
+✅ Avantages :
+
+* Pas de navigation répétitive → fluidité
+* Toutes les pages accessibles via un seul scaffold
+* Synchronisation Firebase déjà implémentée via `StreamBuilder`
+
+---
+
+Si tu veux, je peux **te réécrire toute la `HomePage` + Add + List`** en un **scaffold unique avec BottomNavigationBar**, entièrement dynamique et prêt pour Firebase, pour que ton app devienne vraiment **pro** et **moderne**.
+
+Veux‑tu que je fasse ça ?
+

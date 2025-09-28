@@ -32,7 +32,13 @@ class _ConnexionPageState extends State<ConnexionPage> {
         .get();
 
     if (resp.docs.isEmpty) {
-      Get.snackbar('Utilisateur introuvable', "L'utilisateur n'existe pas");
+      Get.snackbar(
+        'Utilisateur introuvable',
+        "L'utilisateur n'existe pas",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     } else {
       var user = resp.docs.first;
       String enterdPsw = MyUtils().hashPswd(password);
@@ -49,7 +55,7 @@ class _ConnexionPageState extends State<ConnexionPage> {
         return;
       }
 
-      Get.offAll(() => Homepage());
+      Get.offAll(() => HomePage());
 
       Get.snackbar(
         "Information",
@@ -67,8 +73,7 @@ class _ConnexionPageState extends State<ConnexionPage> {
       appBar: AppBar(),
       body: Center(
         child: SingleChildScrollView(
-          // permet de scroller si le clavier s'affiche
-          padding: const EdgeInsets.all(20.0),
+           padding: const EdgeInsets.all(20.0),
           child: Form(
             autovalidateMode: AutovalidateMode.onUserInteraction,
             child: Column(
@@ -85,7 +90,7 @@ class _ConnexionPageState extends State<ConnexionPage> {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  "Veuiller vous connectez.",
+                  "Veuillez vous connecter.",
                   style: TextStyle(color: Colors.black54, fontSize: 14),
                 ),
                 const SizedBox(height: 30),
@@ -119,7 +124,7 @@ class _ConnexionPageState extends State<ConnexionPage> {
                   controller: passwordController,
                   obscureText: isObscured,
                   decoration: InputDecoration(
-                    hintText: "Password",
+                    hintText: "Mot de passe",
                     filled: true,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(20),
@@ -134,7 +139,7 @@ class _ConnexionPageState extends State<ConnexionPage> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return "Saisir le mot de passe";
+                      return "Saisissez le mot de passe";
                     }
                     return null;
                   },
@@ -171,7 +176,7 @@ class _ConnexionPageState extends State<ConnexionPage> {
                 ),
                 const SizedBox(height: 20),
 
-                // Boutons Google et Apple
+                // Boutons Google et Facebook
                 Row(
                   children: [
                     Expanded(
@@ -191,7 +196,7 @@ class _ConnexionPageState extends State<ConnexionPage> {
                         ),
                       ),
                     ),
-                    SizedBox(width: 20),
+                    const SizedBox(width: 20),
                     Expanded(
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
