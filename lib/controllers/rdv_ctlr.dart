@@ -16,12 +16,19 @@ class RdvController {
         .where('userId', isEqualTo: userId)
         .orderBy('date')
         .snapshots()
-        .map((snapshot) =>
-            snapshot.docs.map((doc) => RendezVous.fromMap(doc.data() as Map<String, dynamic>)).toList());
+        .map((snapshot) => snapshot.docs
+            .map((doc) =>
+                RendezVous.fromMap(doc.data() as Map<String, dynamic>))
+            .toList());
   }
 
   // Supprimer un rendez-vous
   Future<void> deleteRdv(String id) async {
     await _rdvCollection.doc(id).delete();
+  }
+
+  // ✅ Mettre à jour un rendez-vous existant
+  Future<void> updateRdv(RendezVous rdv) async {
+    await _rdvCollection.doc(rdv.id).update(rdv.toMap());
   }
 }

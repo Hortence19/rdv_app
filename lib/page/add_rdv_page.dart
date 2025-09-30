@@ -6,7 +6,9 @@ import '../models/rendez_vous.dart';
 
 class AddRdvPage extends StatefulWidget {
   final String userId;
-  const AddRdvPage({super.key, required this.userId});
+  final RendezVous? rdv; // ✅ optionnel pour edit
+
+  const AddRdvPage({super.key, required this.userId, this.rdv});
 
   @override
   State<AddRdvPage> createState() => _AddRdvPageState();
@@ -24,12 +26,38 @@ class _AddRdvPageState extends State<AddRdvPage> {
   final _formKey = GlobalKey<FormState>();
   final RdvController _rdvController = RdvController();
 
+  @override
+  void initState() {
+    super.initState();
+
+    // ✅ si rdv existe → on pré-remplit
+    if (widget.rdv != null) {
+      _titreController.text = widget.rdv!.titre;
+      _descController.text = widget.rdv!.description;
+
+      _selectedDate = widget.rdv!.date;
+      _dateController.text =
+          "${_selectedDate!.day.toString().padLeft(2, '0')}/"
+          "${_selectedDate!.month.toString().padLeft(2, '0')}/"
+          "${_selectedDate!.year}";
+
+      // heure début = heure de la date
+      _selectedTime = TimeOfDay.fromDateTime(widget.rdv!.date);
+
+      // pour simplifier, je mets heure fin = heure début + 1h
+      _selectedTime2 = TimeOfDay(
+        hour: (_selectedTime!.hour + 1) % 24,
+        minute: _selectedTime!.minute,
+      );
+    }
+  }
+
   Future<void> _pickDate() async {
     final picked = await showDatePicker(
       context: context,
       firstDate: DateTime.now(),
       lastDate: DateTime(2050),
-      initialDate: DateTime.now(),
+      initialDate: _selectedDate ?? DateTime.now(),
     );
     if (picked != null) {
       setState(() {
@@ -45,7 +73,7 @@ class _AddRdvPageState extends State<AddRdvPage> {
   Future<void> _pickTime() async {
     final picked = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay.now(),
+      initialTime: _selectedTime ?? TimeOfDay.now(),
     );
     if (picked != null) setState(() => _selectedTime = picked);
   }
@@ -53,12 +81,12 @@ class _AddRdvPageState extends State<AddRdvPage> {
   Future<void> _pickTime2() async {
     final picked = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay.now(),
+      initialTime: _selectedTime2 ?? TimeOfDay.now(),
     );
     if (picked != null) setState(() => _selectedTime2 = picked);
   }
 
-  Future<void> _saveRdv() async {
+  Future<void> _saveOrUpdateRdv() async {
     if (_formKey.currentState!.validate() &&
         _selectedDate != null &&
         _selectedTime != null &&
@@ -79,8 +107,9 @@ class _AddRdvPageState extends State<AddRdvPage> {
         _selectedTime2!.minute,
       );
 
-      final newRdv = RendezVous(
-        id: const Uuid().v4(),
+      // ✅ si rdv existe → on garde son id
+      final rdvToSave = RendezVous(
+        id: widget.rdv?.id ?? const Uuid().v4(),
         titre: _titreController.text,
         description:
             "${_descController.text}\nDe: $startDateTime à $endDateTime",
@@ -89,26 +118,23 @@ class _AddRdvPageState extends State<AddRdvPage> {
       );
 
       try {
-        await _rdvController.addRdv(newRdv);
+        if (widget.rdv == null) {
+          await _rdvController.addRdv(rdvToSave);
+          Get.snackbar(
+            "Succès",
+            "Rendez-vous ajouté ✅",
+            snackPosition: SnackPosition.BOTTOM,
+          );
+        } else {
+          await _rdvController.updateRdv(rdvToSave); // ⚡ update ici
+          Get.snackbar(
+            "Succès",
+            "Rendez-vous modifié ✏️",
+            snackPosition: SnackPosition.BOTTOM,
+          );
+        }
 
-        _formKey.currentState!.reset();
-        _titreController.clear();
-        _descController.clear();
-        _dateController.clear();
-
-        setState(() {
-          _selectedDate = null;
-          _selectedTime = null;
-          _selectedTime2 = null;
-        });
-
-        FocusScope.of(context).unfocus();
-
-        Get.snackbar(
-          "Succès",
-          "Rendez-vous ajouté ✅",
-          snackPosition: SnackPosition.BOTTOM,
-        );
+        Get.back(); // on revient à la liste
       } catch (e) {
         Get.snackbar(
           "Erreur",
@@ -128,32 +154,27 @@ class _AddRdvPageState extends State<AddRdvPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: Text(
+          widget.rdv == null
+              ? "Ajouter un rendez-vous"
+              : "Modifier un rendez-vous",
+        ),
+      ),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Form(
             key: _formKey,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  "Ajouter un rendez-vous",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 50),
                 TextFormField(
                   controller: _titreController,
                   decoration: InputDecoration(
                     hintText: "Objet",
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20), // coins arrondis
-                      borderSide: BorderSide.none, // pas de bordure visible
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide.none,
                     ),
                     filled: true,
                     contentPadding: const EdgeInsets.symmetric(
@@ -174,8 +195,8 @@ class _AddRdvPageState extends State<AddRdvPage> {
                     hintText: "Choisir une date",
                     suffixIcon: const Icon(Icons.calendar_today),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20), // coins arrondis
-                      borderSide: BorderSide.none, // pas de bordure visible
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide.none,
                     ),
                     filled: true,
                     contentPadding: const EdgeInsets.symmetric(
@@ -187,39 +208,33 @@ class _AddRdvPageState extends State<AddRdvPage> {
                       value == null || value.isEmpty ? "Date requise" : null,
                   onTap: _pickDate,
                 ),
-
                 const SizedBox(height: 16),
 
                 Row(
                   children: [
                     Expanded(
                       child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(),
                         onPressed: _pickTime,
                         child: Text(
                           _selectedTime == null
                               ? "Heure début"
                               : "${_selectedTime!.hour}:${_selectedTime!.minute.toString().padLeft(2, '0')}",
-                          style: TextStyle(fontSize: 20),
                         ),
                       ),
                     ),
                     const SizedBox(width: 20),
                     Expanded(
                       child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(),
                         onPressed: _pickTime2,
                         child: Text(
                           _selectedTime2 == null
                               ? "Heure fin"
                               : "${_selectedTime2!.hour}:${_selectedTime2!.minute.toString().padLeft(2, '0')}",
-                          style: TextStyle(fontSize: 20),
                         ),
                       ),
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 16),
 
                 TextFormField(
@@ -228,8 +243,8 @@ class _AddRdvPageState extends State<AddRdvPage> {
                   decoration: InputDecoration(
                     hintText: "Description",
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20), // coins arrondis
-                      borderSide: BorderSide.none, // pas de bordure visible
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide.none,
                     ),
                     filled: true,
                     contentPadding: const EdgeInsets.symmetric(
@@ -245,16 +260,12 @@ class _AddRdvPageState extends State<AddRdvPage> {
 
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
-                    // shape: const RoundedRectangleBorder(
-                    //   borderRadius: BorderRadius.zero, // coins carrés
-                    // ),
                     minimumSize: const Size(double.infinity, 60),
                   ),
-                  onPressed: _saveRdv,
-                  child: const Text(
-                    "Enregistrer",
-                    style: TextStyle(fontSize: 20, color: Colors.white),
+                  onPressed: _saveOrUpdateRdv,
+                  child: Text(
+                    widget.rdv == null ? "Enregistrer" : "Mettre à jour",
+                    style: const TextStyle(fontSize: 20, color: Colors.white),
                   ),
                 ),
               ],

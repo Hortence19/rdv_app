@@ -114,6 +114,19 @@ class _ListRdvPageState extends State<ListRdvPage> {
                     "${DateFormat('dd/MM/yyyy').format(rdv.date)}\n${rdv.description}",
                   ),
                   isThreeLine: true,
+
+                  //modifier un rdv
+                  trailing: IconButton(
+                    icon: const Icon(Icons.edit, color: Colors.orange),
+                    onPressed: () {
+                      Get.to(
+                        () => AddRdvPage(
+                          userId: widget.userId,
+                          rdv: rdv, // ✅ on passe le rendez-vous existant
+                        ),
+                      );
+                    },
+                  ),
                 ),
               );
             },
