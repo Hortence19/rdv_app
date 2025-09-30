@@ -19,6 +19,7 @@ class RendezVous {
       'id': id,
       'titre': titre,
       'description': description,
+      
       'date': date.toIso8601String(),
       'userId': userId,
     };

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../controllers/rdv_ctlr.dart';
 import '../models/rendez_vous.dart';
+import 'add_rdv_page.dart';
 
 class ListRdvPage extends StatelessWidget {
   final String userId;
@@ -10,7 +11,9 @@ class ListRdvPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final RdvController rdvController = Get.put(RdvController()); // ✅ Une seule instance
+    final RdvController rdvController = Get.put(
+      RdvController(),
+    ); // ✅ Une seule instance
 
     return Scaffold(
       appBar: AppBar(title: const Text("Liste des Rendez-vous")),
@@ -34,10 +37,15 @@ class ListRdvPage extends StatelessWidget {
                   const SizedBox(height: 12),
                   ElevatedButton(
                     onPressed: () {
-                      // navigation vers page ajout
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AddRdvPage(userId: userId),
+                        ),
+                      );
                     },
                     child: const Text("Ajouter un rendez-vous"),
-                  )
+                  ),
                 ],
               ),
             );
@@ -67,9 +75,12 @@ class ListRdvPage extends StatelessWidget {
                   }
                 },
                 child: Card(
-                  margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   child: ListTile(
-                    leading: const Icon(Icons.event, color: Colors.blue),
+                    leading: const Icon(Icons.event, color: Colors.deepPurple),
                     title: Text(
                       rdv.titre,
                       style: const TextStyle(fontWeight: FontWeight.bold),
