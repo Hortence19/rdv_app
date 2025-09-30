@@ -5,20 +5,78 @@ import '../controllers/rdv_ctlr.dart';
 import '../models/rendez_vous.dart';
 import 'add_rdv_page.dart';
 
-class ListRdvPage extends StatelessWidget {
+class ListRdvPage extends StatefulWidget {
   final String userId;
   const ListRdvPage({super.key, required this.userId});
 
   @override
-  Widget build(BuildContext context) {
-    final RdvController rdvController = Get.put(
-      RdvController(),
-    ); // ✅ Une seule instance
+  State<ListRdvPage> createState() => _ListRdvPageState();
+}
 
+class _ListRdvPageState extends State<ListRdvPage> {
+  final RdvController rdvController = Get.put(RdvController());
+
+  String selectedFilter = "Tous";
+
+  List<RendezVous> _filterRdvs(List<RendezVous> rdvs) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final tomorrow = today.add(const Duration(days: 1));
+    final nextWeek = today.add(const Duration(days: 7));
+    final nextMonth = DateTime(now.year, now.month + 1, 1);
+
+    return rdvs.where((rdv) {
+      final rdvDate = DateTime(rdv.date.year, rdv.date.month, rdv.date.day);
+
+      switch (selectedFilter) {
+        case "Aujourd'hui":
+          return rdvDate == today;
+        case "Demain":
+          return rdvDate == tomorrow;
+        case "Cette semaine":
+          return rdvDate.isAfter(today.subtract(const Duration(days: 1))) &&
+              rdvDate.isBefore(nextWeek);
+        case "Ce mois-ci":
+          return rdvDate.month == now.month && rdvDate.year == now.year;
+        default:
+          return true;
+      }
+    }).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Liste des Rendez-vous")),
+      appBar: AppBar(
+        title: const Text("Liste des Rendez-vous"),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              setState(() {
+                selectedFilter = value;
+              });
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(value: "Tous", child: Text("Tous")),
+              const PopupMenuItem(
+                value: "Aujourd'hui",
+                child: Text("Aujourd'hui"),
+              ),
+              const PopupMenuItem(value: "Demain", child: Text("Demain")),
+              const PopupMenuItem(
+                value: "Cette semaine",
+                child: Text("Cette semaine"),
+              ),
+              const PopupMenuItem(
+                value: "Ce mois-ci",
+                child: Text("Ce mois-ci"),
+              ),
+            ],
+          ),
+        ],
+      ),
       body: StreamBuilder<List<RendezVous>>(
-        stream: rdvController.getUserRdvs(userId),
+        stream: rdvController.getUserRdvs(widget.userId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -29,67 +87,33 @@ class ListRdvPage extends StatelessWidget {
           }
 
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text("Aucun rendez-vous trouvé"));
+          }
+
+          final filteredRdvs = _filterRdvs(snapshot.data!);
+
+          if (filteredRdvs.isEmpty) {
             return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text("Aucun rendez-vous trouvé"),
-                  const SizedBox(height: 12),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AddRdvPage(userId: userId),
-                        ),
-                      );
-                    },
-                    child: const Text("Ajouter un rendez-vous"),
-                  ),
-                ],
-              ),
+              child: Text("Aucun rendez-vous pour '$selectedFilter'"),
             );
           }
 
-          final rdvs = snapshot.data!;
-
           return ListView.builder(
-            itemCount: rdvs.length,
+            itemCount: filteredRdvs.length,
             itemBuilder: (context, index) {
-              final rdv = rdvs[index];
-              return Dismissible(
-                key: Key(rdv.id),
-                background: Container(
-                  color: Colors.red,
-                  alignment: Alignment.centerRight,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: const Icon(Icons.delete, color: Colors.white),
-                ),
-                direction: DismissDirection.endToStart,
-                onDismissed: (_) async {
-                  try {
-                    await rdvController.deleteRdv(rdv.id);
-                    Get.snackbar("Supprimé", "Rendez-vous supprimé ✅");
-                  } catch (e) {
-                    Get.snackbar("Erreur", "Impossible de supprimer ❌");
-                  }
-                },
-                child: Card(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
+              final rdv = filteredRdvs[index];
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                child: ListTile(
+                  leading: const Icon(Icons.event, color: Colors.deepPurple),
+                  title: Text(
+                    rdv.titre,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  child: ListTile(
-                    leading: const Icon(Icons.event, color: Colors.deepPurple),
-                    title: Text(
-                      rdv.titre,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text(
-                      "${DateFormat('dd/MM/yyyy').format(rdv.date)}\n${rdv.description}",
-                    ),
-                    isThreeLine: true,
+                  subtitle: Text(
+                    "${DateFormat('dd/MM/yyyy').format(rdv.date)}\n${rdv.description}",
                   ),
+                  isThreeLine: true,
                 ),
               );
             },
