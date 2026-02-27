@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "158542575596",
+    "project_id": "rdv-app-1beb4",
+    "storage_bucket": "rdv-app-1beb4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:158542575596:android:1daf80c84e79610286b2c9",
+        "android_client_info": {
+          "package_name": "com.example.rdv_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "158542575596-4ft0rijpj4kb1gggho67gi686ef83n35.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.rdv_app",
+            "certificate_hash": "cb3f52b08413116f6591822d437ba7045bfe3222"
+          }
+        },
+        {
+          "client_id": "158542575596-l7hujfvgg77r5qs8u3q34556rs1qujgc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPpMQOe_xWFzIUWMBjE7WqEcEBO5rmIQ8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "158542575596-l7hujfvgg77r5qs8u3q34556rs1qujgc.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "158542575596-03ti33iteecakg140ec7rhjc1162juop.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.rdvApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
